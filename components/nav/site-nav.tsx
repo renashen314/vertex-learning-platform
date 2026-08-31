@@ -22,17 +22,17 @@ export function SiteNav({
   showUserControls = false,
 }: SiteNavProps) {
   return (
-    <nav className="bg-white border-b border-neutral-200 h-16 flex items-center px-6 gap-8">
-      {/* Logo */}
+    <nav className="bg-white border-b border-neutral-200 h-16 flex items-center px-4 sm:px-6 gap-3 sm:gap-8">
+      {/* Logo — icon always visible; wordmark hidden below sm */}
       <Link href="/" className="flex items-center gap-2 flex-shrink-0">
         <VertexLogo size={28} />
-        <span className="text-h3 font-semibold text-neutral-900 tracking-tight">
+        <span className="hidden sm:inline text-h3 font-semibold text-neutral-900 tracking-tight">
           Vertex
         </span>
       </Link>
 
-      {/* Primary nav links */}
-      <ul className="flex items-center gap-6 list-none m-0 p-0 flex-1">
+      {/* Primary nav links — hidden below sm */}
+      <ul className="hidden sm:flex items-center gap-6 list-none m-0 p-0 flex-1">
         {links.map((link) => (
           <li key={link.href}>
             <Link
@@ -49,6 +49,9 @@ export function SiteNav({
           </li>
         ))}
       </ul>
+
+      {/* Spacer — pushes controls right on mobile when links are hidden */}
+      <div className="flex-1 sm:hidden" aria-hidden="true" />
 
       {/* Right-side user controls */}
       {showUserControls && (
