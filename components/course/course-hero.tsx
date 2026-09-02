@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,7 +18,12 @@ import { urlFor } from "@/sanity/lib/image";
 
 import type { CourseCoverImage } from "./types";
 
+const isPostHogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
+
 export interface CourseHeroProps {
+  courseSlug: string;
   title: string;
   summary: string | null;
   coverImage: CourseCoverImage | null;
@@ -31,6 +39,7 @@ export interface CourseHeroProps {
 }
 
 export function CourseHero({
+  courseSlug,
   title,
   summary,
   coverImage,
@@ -88,6 +97,13 @@ export function CourseHero({
           {firstLessonSlug ? (
             <Link
               href={`/lessons/${firstLessonSlug}`}
+              onClick={() => {
+                if (!isPostHogConfigured) return;
+                posthog.capture("course_started", {
+                  course_slug: courseSlug,
+                  source: "course_hero",
+                });
+              }}
               className="inline-flex items-center justify-center sm:justify-between gap-8 h-13 px-6 rounded-md bg-primary-500 text-white text-body-lg font-medium hover:bg-primary-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
             >
               {ctaLabel}
@@ -107,6 +123,12 @@ export function CourseHero({
           <button
             type="button"
             aria-label={`Bookmark ${title}`}
+            onClick={() => {
+              if (!isPostHogConfigured) return;
+              posthog.capture("course_bookmarked", {
+                course_slug: courseSlug,
+              });
+            }}
             className="inline-flex items-center justify-center gap-2.5 h-13 px-6 rounded-md bg-white border border-neutral-200 shadow-sm text-body-lg font-medium text-neutral-900 hover:bg-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
           >
             <IconBookmark size={18} />
