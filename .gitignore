@@ -46,3 +46,6 @@ next-env.d.ts
 agent/
 skills-lock.json
 
+
+# test output
+/test-results/
