@@ -38,11 +38,11 @@ export const lesson = defineType({
       type: 'text',
       rows: 2,
       group: 'overview',
-      description: 'The line under the lesson title.',
-      validation: (rule) => rule.required().max(240),
+      description: 'The line under the lesson title. Optional.',
+      validation: (rule) => rule.max(240),
     }),
     defineField({
-      name: 'durationSeconds',
+      name: 'duration',
       title: 'Duration (seconds)',
       type: 'number',
       group: 'overview',
@@ -130,11 +130,11 @@ export const lesson = defineType({
     }),
   ],
   preview: {
-    select: {title: 'title', media: 'thumbnail', durationSeconds: 'durationSeconds'},
-    prepare({title, media, durationSeconds}) {
+    select: {title: 'title', media: 'thumbnail', duration: 'duration'},
+    prepare({title, media, duration}) {
       return {
         title: title || 'Untitled lesson',
-        subtitle: formatDuration(durationSeconds),
+        subtitle: formatDuration(duration),
         media,
       }
     },

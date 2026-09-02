@@ -77,7 +77,11 @@
             "of": [
               {
                 "type": "string",
-                "value": "layers"
+                "value": "cloud"
+              },
+              {
+                "type": "string",
+                "value": "code"
               },
               {
                 "type": "string",
@@ -89,7 +93,15 @@
               },
               {
                 "type": "string",
-                "value": "cloud"
+                "value": "layers"
+              },
+              {
+                "type": "string",
+                "value": "puzzle"
+              },
+              {
+                "type": "string",
+                "value": "rocket"
               },
               {
                 "type": "string",
@@ -97,11 +109,15 @@
               },
               {
                 "type": "string",
+                "value": "sparkles"
+              },
+              {
+                "type": "string",
                 "value": "terminal"
               },
               {
                 "type": "string",
-                "value": "sparkles"
+                "value": "workflow"
               }
             ]
           },
@@ -293,7 +309,7 @@
         },
         "optional": true
       },
-      "durationSeconds": {
+      "duration": {
         "type": "objectAttribute",
         "value": {
           "type": "number"

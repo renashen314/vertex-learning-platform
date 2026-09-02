@@ -29,7 +29,7 @@ export const COURSES_CATALOG_QUERY = defineQuery(`
     },
     "moduleCount": count(modules),
     "lessonCount": count(modules[].lessons[]),
-    "durationSeconds": math::sum(modules[].lessons[]->durationSeconds)
+    "duration": math::sum(modules[].lessons[]->duration)
   }
 `)
 
@@ -70,19 +70,19 @@ export const COURSE_BY_SLUG_QUERY = defineQuery(`
       _key,
       title,
       summary,
-      "durationSeconds": math::sum(lessons[]->durationSeconds),
+      "duration": math::sum(lessons[]->duration),
       lessons[]-> {
         _id,
         title,
         "slug": slug.current,
         summary,
-        durationSeconds,
+        duration,
         freePreview,
         thumbnail
       }
     },
     "moduleCount": count(modules),
     "lessonCount": count(modules[].lessons[]),
-    "durationSeconds": math::sum(modules[].lessons[]->durationSeconds)
+    "duration": math::sum(modules[].lessons[]->duration)
   }
 `)

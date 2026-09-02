@@ -21,7 +21,7 @@ export const LESSON_BY_SLUG_QUERY = defineQuery(`
     summary,
     videoUrl,
     thumbnail,
-    durationSeconds,
+    duration,
     freePreview,
     studentCount,
     keyPoints,
@@ -54,7 +54,7 @@ export const LESSON_BY_SLUG_QUERY = defineQuery(`
           _id,
           title,
           "slug": slug.current,
-          durationSeconds
+          duration
         }
       }
     }

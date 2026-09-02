@@ -33,7 +33,7 @@ export const INSTRUCTOR_BY_SLUG_QUERY = defineQuery(`
       popular,
       studentCount,
       "lessonCount": count(modules[].lessons[]),
-      "durationSeconds": math::sum(modules[].lessons[]->durationSeconds)
+      "duration": math::sum(modules[].lessons[]->duration)
     }
   }
 `)
