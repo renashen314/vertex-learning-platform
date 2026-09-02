@@ -73,11 +73,3 @@ export function deriveLessonPosition(
 
   return null
 }
-
-/** Formats a stored duration in seconds as "1h 28m" or "45m". */
-export function formatDuration(totalSeconds: number | null | undefined): string {
-  if (typeof totalSeconds !== 'number' || totalSeconds <= 0) return '0m'
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.round((totalSeconds % 3600) / 60)
-  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
-}
