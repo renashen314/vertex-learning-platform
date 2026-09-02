@@ -148,3 +148,30 @@ export function IconStar({ size = 18, className }: IconProps) {
     </svg>
   );
 }
+
+export function IconGithub({ size = 18, className }: IconProps) {
+  return (
+    <svg {...svgProps(size)} className={className}>
+      <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" />
+    </svg>
+  );
+}
+
+export function IconLightbulb({ size = 18, className }: IconProps) {
+  return (
+    <svg {...svgProps(size)} className={className}>
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+      <path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z" />
+    </svg>
+  );
+}
+
+export function IconCheckCircle({ size = 18, className }: IconProps) {
+  return (
+    <svg {...svgProps(size)} className={className}>
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+  );
+}
