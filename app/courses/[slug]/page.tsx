@@ -78,6 +78,7 @@ export default async function CoursePage(props: PageProps<"/courses/[slug]">) {
         />
 
         <CourseHero
+          courseSlug={slug}
           title={title}
           summary={course.summary}
           coverImage={course.coverImage}
@@ -92,7 +93,11 @@ export default async function CoursePage(props: PageProps<"/courses/[slug]">) {
 
         <CourseOutcomes outcomes={course.learningOutcomes ?? []} />
 
-        <CourseContent modules={modules} duration={course.duration} />
+        <CourseContent
+          courseSlug={slug}
+          modules={modules}
+          duration={course.duration}
+        />
       </main>
 
       <DecorativeBars
@@ -106,6 +111,7 @@ export default async function CoursePage(props: PageProps<"/courses/[slug]">) {
       />
 
       <CourseProgressBar
+        courseSlug={slug}
         percentComplete={PERCENT_COMPLETE}
         firstLessonSlug={firstLessonSlug}
         ctaLabel={ctaLabel}

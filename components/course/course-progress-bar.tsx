@@ -1,7 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import posthog from "posthog-js";
 
 import { IconArrowRight } from "@/components/ui/icons";
 import { ProgressBar } from "@/components/ui/progress";
+
+const isPostHogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 /**
  * The sticky course footer.
@@ -13,6 +20,7 @@ import { ProgressBar } from "@/components/ui/progress";
  * arrives.
  */
 export interface CourseProgressBarProps {
+  courseSlug: string;
   /** 0–100. */
   percentComplete: number;
   firstLessonSlug: string | null;
@@ -20,6 +28,7 @@ export interface CourseProgressBarProps {
 }
 
 export function CourseProgressBar({
+  courseSlug,
   percentComplete,
   firstLessonSlug,
   ctaLabel,
@@ -48,6 +57,13 @@ export function CourseProgressBar({
           {firstLessonSlug ? (
             <Link
               href={`/lessons/${firstLessonSlug}`}
+              onClick={() => {
+                if (!isPostHogConfigured) return;
+                posthog.capture("course_started", {
+                  course_slug: courseSlug,
+                  source: "course_progress_bar",
+                });
+              }}
               className="inline-flex items-center justify-center gap-6 h-11 sm:h-12 px-6 rounded-md bg-primary-500 text-white text-body font-medium hover:bg-primary-400 transition-colors flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
             >
               {ctaLabel}

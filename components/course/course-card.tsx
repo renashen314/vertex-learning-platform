@@ -1,11 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 import { IconBarChart, IconClock, IconGrid } from "@/components/ui/icons";
 import { formatDuration, formatLevel } from "@/lib/format";
 import { urlFor } from "@/sanity/lib/image";
 
 import type { COURSES_CATALOG_QUERY_RESULT } from "@/sanity.types";
+
+const isPostHogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 /**
  * The catalog card, shared by the home page's featured row and the `/courses`
@@ -20,6 +27,12 @@ export function CourseCard({ course }: { course: CatalogCourse }) {
   return (
     <Link
       href={`/courses/${course.slug}`}
+      onClick={() => {
+        if (!isPostHogConfigured) return;
+        posthog.capture("course_selected", {
+          course_slug: course.slug,
+        });
+      }}
       className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 flex flex-col gap-5 hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2"
     >
       <CourseTile course={course} />

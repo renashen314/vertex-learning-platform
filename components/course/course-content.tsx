@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import Link from "next/link";
+import posthog from "posthog-js";
 
 import { IconChevronDown, IconPlayCircle } from "@/components/ui/icons";
 import { formatDuration } from "@/lib/format";
@@ -16,6 +17,9 @@ import { formatDuration } from "@/lib/format";
 
 /** Only the modules shown before the "Show all" control is used. */
 const COLLAPSED_MODULE_COUNT = 6;
+const isPostHogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export interface ContentLesson {
   id: string;
@@ -34,12 +38,17 @@ export interface ContentModule {
 }
 
 export interface CourseContentProps {
+  courseSlug: string;
   modules: ContentModule[];
   /** Total course duration in seconds, summed from its lessons. */
   duration: number | null;
 }
 
-export function CourseContent({ modules, duration }: CourseContentProps) {
+export function CourseContent({
+  courseSlug,
+  modules,
+  duration,
+}: CourseContentProps) {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [showAll, setShowAll] = useState(false);
   const idPrefix = useId();
@@ -88,7 +97,16 @@ export function CourseContent({ modules, duration }: CourseContentProps) {
             >
               <button
                 type="button"
-                onClick={() => toggle(courseModule.key)}
+                onClick={() => {
+                  if (!isOpen && isPostHogConfigured) {
+                    posthog.capture("course_module_expanded", {
+                      course_slug: courseSlug,
+                      module_position: index + 1,
+                      lesson_count: courseModule.lessons.length,
+                    });
+                  }
+                  toggle(courseModule.key);
+                }}
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 className="w-full flex items-center gap-4 sm:gap-5 text-left px-4 sm:px-6 py-4 hover:bg-white/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-400"
@@ -133,8 +151,11 @@ export function CourseContent({ modules, duration }: CourseContentProps) {
                   {courseModule.lessons.map((lesson, lessonIndex) => (
                     <LessonRow
                       key={lesson.id}
+                      courseSlug={courseSlug}
                       lesson={lesson}
                       label={`Lesson ${index + 1}.${lessonIndex + 1}`}
+                      modulePosition={index + 1}
+                      lessonPosition={lessonIndex + 1}
                     />
                   ))}
                 </ul>
@@ -148,7 +169,15 @@ export function CourseContent({ modules, duration }: CourseContentProps) {
         <div className="flex justify-center -mt-5 relative">
           <button
             type="button"
-            onClick={() => setShowAll(true)}
+            onClick={() => {
+              if (isPostHogConfigured) {
+                posthog.capture("course_content_expanded", {
+                  course_slug: courseSlug,
+                  module_count: modules.length,
+                });
+              }
+              setShowAll(true);
+            }}
             className="inline-flex items-center gap-3 h-11 px-6 rounded-md bg-white border border-neutral-200 shadow-sm text-body font-medium text-neutral-900 hover:bg-neutral-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
           >
             Show all {modules.length} modules
@@ -197,11 +226,17 @@ function ModuleNumber({
 /* ── Lesson row inside an expanded module ───────────────────── */
 
 function LessonRow({
+  courseSlug,
   lesson,
   label,
+  modulePosition,
+  lessonPosition,
 }: {
+  courseSlug: string;
   lesson: ContentLesson;
   label: string;
+  modulePosition: number;
+  lessonPosition: number;
 }) {
   const body = (
     <>
@@ -232,6 +267,16 @@ function LessonRow({
       {lesson.slug ? (
         <Link
           href={`/lessons/${lesson.slug}`}
+          onClick={() => {
+            if (!isPostHogConfigured) return;
+            posthog.capture("lesson_selected", {
+              course_slug: courseSlug,
+              lesson_slug: lesson.slug,
+              module_position: modulePosition,
+              lesson_position: lessonPosition,
+              is_free_preview: lesson.freePreview,
+            });
+          }}
           className="flex items-center gap-3 rounded-md px-4 sm:px-5 py-3 ml-0 sm:ml-14 hover:bg-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
         >
           {body}

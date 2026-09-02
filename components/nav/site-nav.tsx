@@ -1,8 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from "@clerk/nextjs";
+import posthog from "posthog-js";
 import { VertexLogo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 
@@ -22,11 +29,48 @@ const defaultLinks: NavLink[] = [
   { label: "My Learning", href: "/my-learning" },
 ];
 
+const isPostHogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_KEY && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
+
 export function SiteNav({
   links = defaultLinks,
   showUserControls = false,
 }: SiteNavProps) {
   const [open, setOpen] = useState(false);
+  const { isLoaded, isSignedIn, user } = useUser();
+  const identifiedUserId = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded || !isPostHogConfigured) return;
+
+    if (!isSignedIn || !user) {
+      if (identifiedUserId.current) {
+        posthog.reset();
+        identifiedUserId.current = null;
+      }
+      return;
+    }
+
+    if (
+      identifiedUserId.current === user.id ||
+      posthog.get_distinct_id() === user.id
+    ) {
+      identifiedUserId.current = user.id;
+      return;
+    }
+
+    if (identifiedUserId.current) posthog.reset();
+
+    posthog.identify(user.id, {
+      ...(user.primaryEmailAddress && {
+        email: user.primaryEmailAddress.emailAddress,
+      }),
+      ...(user.firstName && { first_name: user.firstName }),
+      ...(user.lastName && { last_name: user.lastName }),
+    });
+    identifiedUserId.current = user.id;
+  }, [isLoaded, isSignedIn, user]);
 
   return (
     <div className="relative">
