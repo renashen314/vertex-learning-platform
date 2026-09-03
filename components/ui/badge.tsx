@@ -12,12 +12,14 @@ const defaultLabels: Record<BadgeVariant, string> = {
 };
 
 /**
- * `popular` follows the design system's badge row: a pale peach chip with
- * orange text and a soft-rectangle radius, not a solid pill.
+ * All three variants are soft pills — pale fill, saturated text — per
+ * design/vertex-search.png's result-card badges and the home/course pages'
+ * `popular` chip. `video` and `lesson` were sampled directly off the
+ * mockup's pixels (peach/orange and lavender/indigo respectively).
  */
 const variantClasses: Record<BadgeVariant, string> = {
-  video:   "bg-primary-500 text-white rounded-full",
-  lesson:  "bg-blue-500 text-white rounded-full",
+  video:   "bg-primary-100 text-primary-500 rounded-full",
+  lesson:  "bg-indigo-50 text-indigo-700 rounded-full",
   popular: "bg-primary-100 text-primary-500 rounded-sm",
 };
 
