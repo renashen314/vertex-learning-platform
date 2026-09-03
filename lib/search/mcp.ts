@@ -5,6 +5,7 @@ import { createMCPClient } from "@ai-sdk/mcp";
 import { dataset, getReadToken, projectId } from "@/sanity/env";
 
 const MCP_API_VERSION = "v2026-03-03";
+const INITIAL_CONTEXT_TIMEOUT_MS = 10_000;
 
 function requireContextSlug(): string {
   const slug = process.env.SANITY_CONTEXT_SLUG;
@@ -37,6 +38,7 @@ export function fetchInitialContext(): Promise<string> {
   if (!cachedInitialContext) {
     cachedInitialContext = fetch(`${getMcpUrl()}/initial-context`, {
       headers: authHeaders(),
+      signal: AbortSignal.timeout(INITIAL_CONTEXT_TIMEOUT_MS),
     })
       .then(async (res) => {
         if (!res.ok) {

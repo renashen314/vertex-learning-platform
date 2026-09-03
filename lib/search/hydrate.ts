@@ -51,7 +51,7 @@ export async function hydrateResults(matches: AgentMatch[]): Promise<SearchResul
 
 function toLessonResult(lesson: HydratedLesson, match: AgentMatch): SearchResultLesson | null {
   const course = lesson.course;
-  if (!course?.slug) return null;
+  if (!lesson.title || !course?.title || !course.slug) return null;
 
   const position = deriveLessonPosition(
     (course.modules ?? []).map((courseModule) => ({
@@ -66,9 +66,9 @@ function toLessonResult(lesson: HydratedLesson, match: AgentMatch): SearchResult
   return {
     kind: "lesson",
     lessonSlug: lesson.slug!,
-    title: lesson.title ?? "Untitled lesson",
+    title: lesson.title,
     description: match.description,
-    courseTitle: course.title ?? "Untitled course",
+    courseTitle: course.title,
     courseSlug: course.slug,
     courseCoverImageUrl: course.coverImage
       ? urlFor(course.coverImage).width(64).height(64).fit("crop").auto("format").url()

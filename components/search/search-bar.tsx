@@ -6,6 +6,10 @@ import { useState } from "react";
 import { TextInput } from "@/components/ui/input";
 
 export function SearchBar({ initialQuery }: { initialQuery: string }) {
+  return <SearchBarForm key={initialQuery} initialQuery={initialQuery} />;
+}
+
+function SearchBarForm({ initialQuery }: { initialQuery: string }) {
   const [value, setValue] = useState(initialQuery);
   const router = useRouter();
 

@@ -14,6 +14,28 @@ const RequestSchema = z.object({
   query: z.string().trim().min(1).max(200),
 });
 
+const SEARCH_DEADLINE_MS = 60_000;
+
+function rejectOnAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) return Promise.reject(signal.reason);
+
+  return new Promise((resolve, reject) => {
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener("abort", onAbort, { once: true });
+
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (error: unknown) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
 /**
  * The search API route (AGENTS.md §5): the only place that connects to the
  * Sanity Context MCP or holds `OPENAI_API_KEY`/`SANITY_API_READ_TOKEN`. The
@@ -45,22 +67,33 @@ export async function POST(request: Request) {
     ]);
     mcpClient = client;
 
-    const allTools = await mcpClient.tools();
-    // Excluded per the create-agent-with-sanity-context skill: its data is
-    // already in the system prompt via fetchInitialContext, so keeping the
-    // tool around would only invite a redundant first-turn tool call.
-    const mcpTools = Object.fromEntries(
-      Object.entries(allTools).filter(([name]) => name !== "initial_context"),
-    );
+    const deadlineController = new AbortController();
+    const deadline = setTimeout(() => {
+      deadlineController.abort(new Error("Search request deadline exceeded."));
+    }, SEARCH_DEADLINE_MS);
 
-    const result = await generateText({
-      model: openai("gpt-5-mini"),
-      system: `${SEARCH_SYSTEM_PROMPT}\n\n${initialContext}`,
-      prompt: `Find every lesson that matches this learner's search query: "${query}"`,
-      tools: mcpTools,
-      stopWhen: stepCountIs(8),
-      output: Output.object({ schema: AgentOutputSchema }),
-    });
+    let result;
+    try {
+      const allTools = await rejectOnAbort(mcpClient.tools(), deadlineController.signal);
+      // Excluded per the create-agent-with-sanity-context skill: its data is
+      // already in the system prompt via fetchInitialContext, so keeping the
+      // tool around would only invite a redundant first-turn tool call.
+      const mcpTools = Object.fromEntries(
+        Object.entries(allTools).filter(([name]) => name !== "initial_context"),
+      );
+
+      result = await generateText({
+        model: openai("gpt-5-mini"),
+        system: `${SEARCH_SYSTEM_PROMPT}\n\n${initialContext}`,
+        prompt: `Find every lesson that matches this learner's search query: "${query}"`,
+        tools: mcpTools,
+        stopWhen: stepCountIs(8),
+        output: Output.object({ schema: AgentOutputSchema }),
+        abortSignal: deadlineController.signal,
+      });
+    } finally {
+      clearTimeout(deadline);
+    }
 
     const results = await hydrateResults(result.output.results);
 

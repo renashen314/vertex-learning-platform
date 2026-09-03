@@ -50,7 +50,7 @@ export function SearchResults({ query }: { query: string }) {
         setResult({ query, status: "success", data });
         if (isPostHogConfigured) {
           posthog.capture("search_performed", {
-            query: data.query,
+            query_length: data.query.length,
             result_count: data.resultCount,
           });
         }
